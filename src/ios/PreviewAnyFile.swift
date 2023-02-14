@@ -1,5 +1,22 @@
 import QuickLook
 import CoreServices
+
+
+class MobiUINavigationItem: UINavigationItem {
+    override func setRightBarButtonItems(_ items: [UIBarButtonItem]?, animated: Bool) {
+        // forbidden to add anything to right
+    }
+}
+
+class MobiCustomPreviewController: QLPreviewController, QLPreviewControllerDelegate {
+    
+    private let item = MobiUINavigationItem(title: "")
+
+    override var navigationItem: UINavigationItem {
+        get { return item }
+    }
+}
+
 //new
 @objc(HWPPreviewAnyFile) class PreviewAnyFile: CDVPlugin {
     lazy var previewItem = NSURL()
@@ -88,10 +105,12 @@ import CoreServices
                 self.previewItem = fileLocationURL! as NSURL
 
                 DispatchQueue.main.async(execute: {
-                 let previewController = QLPreviewController();
+                 let previewController = MobiCustomPreviewController();
+                    previewController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(self.closePreview(_:)));
                  previewController.dataSource = self;
-                 previewController.delegate = self;
-                    self.viewController?.present(previewController, animated: true, completion: nil);
+                    let navigationController = UINavigationController(rootViewController: previewController);
+                    navigationController.modalPresentationStyle = .fullScreen;
+                    self.viewController?.present(navigationController, animated: true, completion: nil);
                     if self.viewController!.isViewLoaded {
                         pluginResult = CDVPluginResult(
                             status: CDVCommandStatus_OK,
@@ -128,6 +147,11 @@ import CoreServices
             }
         })
     }
+    
+    @objc func closePreview(_ sender: Any?) {
+        self.viewController.dismiss(animated: true) // << dismiss preview
+    }
+
 
 
     @objc(previewBase64:)
@@ -330,4 +354,6 @@ extension PreviewAnyFile: QLPreviewControllerDataSource, QLPreviewControllerDele
         self.dismissPreviewCallback();
 
     }
+    
+    
 }

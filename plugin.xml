@@ -22,8 +22,6 @@
     </platform>
 
     <platform name="android">
-        <dependency id="cordova-plugin-androidx" version="*" />
-        <dependency id="cordova-plugin-androidx-adapter" version="*" />
         <config-file target="config.xml" parent="/*">
             <platform name="android">
                 <preference name="AndroidXEnabled" value="true" />
